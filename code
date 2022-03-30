@@ -1,0 +1,87 @@
+.data
+    n:    .word 3
+.text
+    
+    inicio:
+        jal le_int1                 # chama função para ler 1 número
+        la  $t1, 0($v0)            # carrega o inteiro lido em $t1
+        jal le_int2            # chama função para ler 2 número
+        la  $t2, 0($v0)            # carrega o inteiro lido em $t2
+        jal le_int3            # chama função para ler 3 número
+        la  $t3, 0($v0)            # carrega o intero lido em $t3
+        jal checar1            # checagem de maiores
+        jal imprime_inteiro        # manda imprimir o numero lido
+        j   fim                   # encerra o programa
+    
+    le_int1:
+        li $v0, 5            # código para ler um inteiro
+        syscall                # executa a chamada do SO para ler
+        jr $ra                # volta para o lugar de onde foi chamado (no caso, jal le_int1)
+       
+    le_int2:
+        li $v0, 5            # código para ler um inteiro
+        syscall                # executa a chamada do SO para ler
+        jr $ra                # volta para o lugar de onde foi chamado (jal le_int2)
+               
+    le_int3:   
+        li $v0, 5            # código para ler um inteiro
+        syscall                # executa a chamada do SO para ler
+        jr $ra                # volta para o lugar de onde foi chamado (jal le_int3)
+       
+    checar1:
+        slt    $t4, $t1, $t2        #retorna 1 em $t4 se $t1<$t2   
+        beqz    $t4, t1maior        #chama a função t2maior caso $t4 == 0
+        j    t2maior            #chama a função t1maior caso $t4 == 1
+       
+    t1maior:
+        slt     $t5, $t1, $t3        #retorna 1 em t5 se $t1<$t3
+        beqz    $t5, t1mais        #chama a função t3maior caso $t5 == 0
+        add    $t8, $t2, $zero        #deduz-se que t2 será o menor numero, portanto salvo em t8
+        j    t3maior            #chama a função t1mais caso $t5 == 1
+       
+    t2maior:
+        slt    $t5, $t2, $t3        #retorna 1 em t5 se $t2<$t3
+        beqz    $t5, t2mais        #chama a função t3maior caso $t5 == 0
+        add    $t8, $t1, $zero        #deduz-se que t1 será o menor numero, portanto salvo em t8
+        j    t3maior            #chama a função t2mais caso $t5 == 1
+       
+    t3maior:
+        add     $t6,$zero,$t3        #salva o valor de $t3 em $t6
+        jr     $ra            #volta para "jal checarl"
+       
+    t1mais:
+        add     $t6,$zero,$t1        #salva o valor de $t1 em $t6
+        slt    $t7,$t2,$t3
+        beqz    $t7, t3eomenor
+        j    t2eomenor
+        #jr     $ra            #volta para "jal checarl"
+       
+    t2mais:
+        add     $t6,$zero,$t2        #salva o valor de $t2 em $t6
+        #jr    $ra            #volta para "jal checarl"
+        slt     $t7,$t1,$t3
+        beqz    $t7, t3eomenor
+        j    t1eomenor
+       
+    t1eomenor:
+        add    $t8,$zero,$t1        #salva o valor de $t1 em $t8
+        jr    $ra            #volta para "jal checarl"
+    t2eomenor:
+        add    $t8,$zero,$t2        #salva o valor de $t2 em $t8
+        jr    $ra            #volta para "jal checarl"
+    t3eomenor:
+        add    $t8,$zero,$t3        #salva o valor de $t3 em $t8
+        jr    $ra            #volta para "jal checarl"
+    
+    imprime_inteiro:
+        li $v0, 1    # código para imprimir um inteiro
+        la $a0, ($t6)    # $a0 é o registrador que irá conter o maior valor a ser impresso
+        syscall        # executa a chamado do SO para imprimir
+        li $v0, 1    # imprimir um inteiro
+        la $a1, ($t8)    # $a1 conterá o menor valor a ser impresso
+        syscall        # chamado ao sistema para imprimir
+        jr $ra        # volta para o lugar de onde foi chamado (no caso, jal imprime_inteiro)
+       
+    fim:
+        li $v0, 10    # código para encerrar o programa
+        syscall        # executa a chamada do SO para encerrar
